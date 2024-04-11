@@ -115,9 +115,9 @@ class WordsDatabase:
     def get_remaining_words(self, chat_id: int) -> None:
         self.connect()
         self.cursor.execute('SELECT word FROM main_words')
-        self.remaining_main_words = {chat_id: [row[0] for row in self.cursor.fetchall()]}
+        self.remaining_main_words[chat_id] = [row[0] for row in self.cursor.fetchall()]
         self.cursor.execute('SELECT word FROM users_words WHERE chat_id=%s', (chat_id,))
-        self.remaining_user_words = {chat_id: [row[0] for row in self.cursor.fetchall()]}
+        self.remaining_user_words[chat_id] = [row[0] for row in self.cursor.fetchall()]
         self.disconnect()
 
     def get_random_word(self, chat_id) -> tuple | None:
@@ -161,6 +161,6 @@ class WordsDatabase:
         self.disconnect()
 
 
-database = WordsDatabase(name='words', user='user', password='pass')
+database = WordsDatabase(name='words', user='user', password='password')
 if __name__ == '__main__':
     pass

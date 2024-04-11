@@ -61,11 +61,8 @@ def create_cards(message):
     if not database.cycle:
         bot.send_message(chat_id, f'Вы прошли все слова, давайте повторим!')
         database.cycle = True
-    if not database.remaining_main_words and not database.remaining_user_words:
+    if not database.remaining_main_words.get(chat_id) and not database.remaining_user_words.get(chat_id):
         database.get_remaining_words(chat_id)
-    if not database.remaining_main_words[chat_id] + database.remaining_user_words[chat_id]:
-        database.get_remaining_words(chat_id)
-        chat_state_manager.current_words = {}
     word_data = database.get_random_word(chat_id)
     russian_word = word_data[0][0]
     target_word = word_data[0][1]
@@ -148,3 +145,4 @@ def process_deleted_word(message):
 if __name__ == '__main__':
     print('Start telegram bot...')
     bot.polling()
+
