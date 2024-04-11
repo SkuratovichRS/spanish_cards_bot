@@ -58,13 +58,15 @@ def send_help(message):
 def create_cards(message):
     markup = types.ReplyKeyboardMarkup(row_width=2)
     chat_id = message.chat.id
-    # if not database.cycle:
-    #     bot.send_message(chat_id, f'Вы прошли все слова, давайте повторим!')
-    #     database.cycle = True
-    if not database.remaining_main_words + database.remaining_user_words:
+    if not database.cycle:
+        bot.send_message(chat_id, f'Вы прошли все слова, давайте повторим!')
+        database.cycle = True
+    if not database.remaining_main_words and not database.remaining_user_words:
+        database.get_remaining_words(chat_id)
+    if not database.remaining_main_words[chat_id] + database.remaining_user_words[chat_id]:
         database.get_remaining_words(chat_id)
         chat_state_manager.current_words = {}
-    word_data = database.get_random_word()
+    word_data = database.get_random_word(chat_id)
     russian_word = word_data[0][0]
     target_word = word_data[0][1]
     target_word_btn = types.KeyboardButton(target_word)
@@ -111,7 +113,7 @@ def add_word(message):
 
 
 def process_added_word(message):
-    word_to_add = message.text
+    word_to_add = message.text.capitalize()
     chat_id = message.chat.id
     if word_to_add not in database.get_all_words(chat_id):
         translation = translator.translate(word_to_add).text
@@ -119,10 +121,28 @@ def process_added_word(message):
         word_id = database.get_user_word_id(word_to_add, chat_id)
         translations = variants.choose_variants()
         database.fill_table_users_words_variants(word_id, translations)
-        bot.send_message(chat_id, f'Слово "{word_to_add}" добавлено')
+        bot.send_message(chat_id, f'Слово "{word_to_add}" успешно добавлено')
     else:
         bot.send_message(chat_id, f'Слово "{word_to_add}" уже есть')
         add_word(message)
+
+
+@bot.message_handler(func=lambda message: message.text == Command.DELETE_WORD)
+def delete_word(message):
+    chat_id = message.chat.id
+    msg = bot.send_message(chat_id, 'Введите слово из добавленных Вами, которое хотите удалить')
+    bot.register_next_step_handler(msg, process_deleted_word)
+
+
+def process_deleted_word(message):
+    chat_id = message.chat.id
+    word_to_delete = message.text.capitalize()
+    if word_to_delete not in database.get_user_words(chat_id):
+        bot.send_message(chat_id, 'Вы не можете удалить это слово')
+        delete_word(message)
+    else:
+        database.delete_user_word(word_to_delete, chat_id)
+        bot.send_message(chat_id, f'Слово {word_to_delete} успешно удалено')
 
 
 if __name__ == '__main__':
