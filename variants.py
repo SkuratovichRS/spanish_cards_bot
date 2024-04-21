@@ -18,9 +18,3 @@ class Variants:
             chosen_words.append(random_w)
             self.variants.remove(random_w)
         return chosen_words
-
-
-variants = Variants()
-
-if __name__ == '__main__':
-    pass

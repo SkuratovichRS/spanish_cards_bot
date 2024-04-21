@@ -1,14 +1,20 @@
 import random
 import telebot
+import configparser
 from telebot import types
 from googletrans import Translator
-from db import database
-from variants import variants
+from db import WordsDatabase
+from variants import Variants
 
-TOKEN = 'token'
+config = configparser.ConfigParser()
+config.read('settings.ini')
+TOKEN = config['BOT']['TOKEN']
 
 bot = telebot.TeleBot(TOKEN)
-
+database = WordsDatabase(name=config['DATABASE']['NAME'],
+                         user=config['DATABASE']['USER'],
+                         password=config['DATABASE']['PASSWORD'])
+variants = Variants()
 translator = Translator()
 
 
@@ -145,4 +151,3 @@ def process_deleted_word(message):
 if __name__ == '__main__':
     print('Start telegram bot...')
     bot.polling()
-

@@ -61,7 +61,8 @@ class WordsDatabase:
             """, (word, translate))
         self.disconnect()
 
-    def fill_table_main_words_variants(self, word_id: int, translations: list) -> None:
+    def fill_table_main_words_variants(
+            self, word_id: int, translations: list) -> None:
         self.connect()
         for translate in translations:
             self.cursor.execute("""
@@ -70,7 +71,11 @@ class WordsDatabase:
                 """, (word_id, translate))
         self.disconnect()
 
-    def fill_table_users_words(self, word: str, translate: str, chat_id: int) -> None:
+    def fill_table_users_words(
+            self,
+            word: str,
+            translate: str,
+            chat_id: int) -> None:
         self.connect()
         self.cursor.execute("""
             INSERT INTO users_words (word, translate, chat_id)
@@ -81,13 +86,14 @@ class WordsDatabase:
     def get_user_word_id(self, word: str, chat_id: int) -> int:
         self.connect()
         self.cursor.execute("""
-            SELECT id FROM users_words 
+            SELECT id FROM users_words
             WHERE word=%s and chat_id=%s;
             """, (word, chat_id))
         word_id = self.cursor.fetchone()[0]
         return word_id
 
-    def fill_table_users_words_variants(self, word_id: int, translations: list) -> None:
+    def fill_table_users_words_variants(
+            self, word_id: int, translations: list) -> None:
         self.connect()
         for translate in translations:
             self.cursor.execute("""
@@ -100,14 +106,16 @@ class WordsDatabase:
         self.connect()
         self.cursor.execute('SELECT word FROM main_words')
         all_words = [row[0] for row in self.cursor.fetchall()]
-        self.cursor.execute('SELECT word FROM users_words WHERE chat_id=%s', (chat_id,))
+        self.cursor.execute(
+            'SELECT word FROM users_words WHERE chat_id=%s', (chat_id,))
         all_words += [row[0] for row in self.cursor.fetchall()]
         self.disconnect()
         return all_words
 
     def get_user_words(self, chat_id: int) -> list:
         self.connect()
-        self.cursor.execute('SELECT word FROM users_words WHERE chat_id=%s', (chat_id,))
+        self.cursor.execute(
+            'SELECT word FROM users_words WHERE chat_id=%s', (chat_id,))
         user_words = [row[0] for row in self.cursor.fetchall()]
         self.disconnect()
         return user_words
@@ -115,13 +123,18 @@ class WordsDatabase:
     def get_remaining_words(self, chat_id: int) -> None:
         self.connect()
         self.cursor.execute('SELECT word FROM main_words')
-        self.remaining_main_words[chat_id] = [row[0] for row in self.cursor.fetchall()]
-        self.cursor.execute('SELECT word FROM users_words WHERE chat_id=%s', (chat_id,))
-        self.remaining_user_words[chat_id] = [row[0] for row in self.cursor.fetchall()]
+        self.remaining_main_words[chat_id] = [row[0]
+                                              for row in self.cursor.fetchall()]
+        self.cursor.execute(
+            'SELECT word FROM users_words WHERE chat_id=%s', (chat_id,))
+        self.remaining_user_words[chat_id] = [row[0]
+                                              for row in self.cursor.fetchall()]
         self.disconnect()
 
     def get_random_word(self, chat_id) -> tuple | None:
-        if len(self.remaining_main_words[chat_id] + self.remaining_user_words[chat_id]) == 1:
+        if len(
+                self.remaining_main_words[chat_id] +
+                self.remaining_user_words[chat_id]) == 1:
             self.cycle = False
         if self.remaining_main_words[chat_id] or self.remaining_user_words[chat_id]:
             random_word = random.choice(self.remaining_main_words[chat_id]
@@ -129,9 +142,11 @@ class WordsDatabase:
             if random_word in self.remaining_main_words[chat_id]:
                 self.remaining_main_words[chat_id].remove(random_word)
                 self.connect()
-                self.cursor.execute("SELECT * FROM main_words WHERE word=%s", (random_word,))
+                self.cursor.execute(
+                    "SELECT * FROM main_words WHERE word=%s", (random_word,))
                 row = self.cursor.fetchone()
-                self.cursor.execute("SELECT * FROM main_words_variants WHERE word_id=%s", (row[0],))
+                self.cursor.execute(
+                    "SELECT * FROM main_words_variants WHERE word_id=%s", (row[0],))
                 fetched = self.cursor.fetchall()
                 translations = [f[1] for f in fetched]
                 self.disconnect()
@@ -139,9 +154,11 @@ class WordsDatabase:
             else:
                 self.remaining_user_words[chat_id].remove(random_word)
                 self.connect()
-                self.cursor.execute("SELECT * FROM users_words WHERE word=%s", (random_word,))
+                self.cursor.execute(
+                    "SELECT * FROM users_words WHERE word=%s", (random_word,))
                 row = self.cursor.fetchone()
-                self.cursor.execute("SELECT * FROM users_words_variants WHERE word_id=%s", (row[0],))
+                self.cursor.execute(
+                    "SELECT * FROM users_words_variants WHERE word_id=%s", (row[0],))
                 fetched = self.cursor.fetchall()
                 translations = [f[1] for f in fetched]
                 self.disconnect()
@@ -153,14 +170,9 @@ class WordsDatabase:
         word_id = self.get_user_word_id(word, chat_id)
         self.connect()
         self.cursor.execute("""
-                    DELETE FROM users_words_variants WHERE word_id=%s
-                    """, (word_id,))
+            DELETE FROM users_words_variants WHERE word_id=%s
+            """, (word_id,))
         self.cursor.execute("""
             DELETE FROM users_words WHERE word=%s and chat_id=%s
             """, (word, chat_id))
         self.disconnect()
-
-
-database = WordsDatabase(name='words', user='user', password='password')
-if __name__ == '__main__':
-    pass
