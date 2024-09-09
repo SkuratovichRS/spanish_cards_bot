@@ -15,7 +15,7 @@ class WordsDatabase:
         self.cycle = True
 
     def connect(self) -> None:
-        self.connection = (psycopg2.connect(
+        self.connection = (psycopg2.connect(host="127.0.0.1",
             database=self.name, user=self.user, password=self.password))
         self.cursor = self.connection.cursor()
 

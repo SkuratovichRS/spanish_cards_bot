@@ -50,7 +50,7 @@ class Command:
 @bot.message_handler(commands=['start'])
 def send_welcome(message):
     chat_id = message.chat.id
-    bot.send_message(chat_id, 'Доброго времени суток! Давайте изучать английский язык!')
+    bot.send_message(chat_id, 'Доброго времени суток! Давайте изучать испанский язык!')
     bot.send_message(chat_id, 'Введите /help для просмотра доступных команд')
 
 
@@ -119,7 +119,7 @@ def process_added_word(message):
     word_to_add = message.text.capitalize()
     chat_id = message.chat.id
     if word_to_add not in database.get_all_words(chat_id):
-        translation = translator.translate(word_to_add).text
+        translation = translator.translate(word_to_add, dest='spanish').text
         database.fill_table_users_words(word_to_add, translation, chat_id)
         word_id = database.get_user_word_id(word_to_add, chat_id)
         translations = variants.choose_variants()

@@ -7,7 +7,7 @@ class Variants:
         self.fill_variants()
 
     def fill_variants(self):
-        with open('engwords.txt') as f:
+        with open('espwords.txt') as f:
             for w in f:
                 self.variants.append(w.strip().capitalize())
 
