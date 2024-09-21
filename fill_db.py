@@ -9,5 +9,5 @@ database = WordsDatabase(name=config['DATABASE']['NAME'],
 
 database.create_tables()
 database.fill_table_main_words('Привет', 'Hola')
-database.fill_table_main_words_variants(1, ['Aloha', 'Hello', 'hallo'])
+database.fill_table_main_words_variants(1, ['Hora', 'Ola', 'Hilo'])
 

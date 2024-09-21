@@ -42,16 +42,16 @@ chat_state_manager = ChatStateManager()
 
 
 class Command:
-    ADD_WORD = 'Добавить слово +'
-    DELETE_WORD = 'Удалить слово -'
-    NEXT = 'Дальше ->'
+    ADD_WORD = 'Добавить слово ➕'
+    DELETE_WORD = 'Удалить слово ➖'
+    NEXT = 'Дальше  ⬆️'
 
 
 @bot.message_handler(commands=['start'])
 def send_welcome(message):
     chat_id = message.chat.id
-    bot.send_message(chat_id, 'Доброго времени суток! Давайте изучать испанский язык!')
-    bot.send_message(chat_id, 'Введите /help для просмотра доступных команд')
+    bot.send_message(chat_id, 'Привет!👋 Давай вместе учить испанский!📚')
+    bot.send_message(chat_id, 'Введи /help для просмотра доступных команд ⚙️')
 
 
 @bot.message_handler(commands=['help'])
@@ -65,7 +65,7 @@ def create_cards(message):
     markup = types.ReplyKeyboardMarkup(row_width=2)
     chat_id = message.chat.id
     if not database.cycle:
-        bot.send_message(chat_id, f'Вы прошли все слова, давайте повторим!')
+        bot.send_message(chat_id, f'Ты прошёл весь круг, давай закрепим!👏')
         database.cycle = True
     if not database.remaining_main_words.get(chat_id) and not database.remaining_user_words.get(chat_id):
         database.get_remaining_words(chat_id)
@@ -78,13 +78,13 @@ def create_cards(message):
     other_words_btns = [types.KeyboardButton(word) for word in other_words]
     buttons = [target_word_btn] + other_words_btns
     random.shuffle(buttons)
-    next_btn = types.KeyboardButton(Command.NEXT)
-    add_word_btn = types.KeyboardButton(Command.ADD_WORD)
-    delete_word_btn = types.KeyboardButton(Command.DELETE_WORD)
+    next_btn = types.KeyboardButton(Command.ADD_WORD)
+    add_word_btn = types.KeyboardButton(Command.DELETE_WORD)
+    delete_word_btn = types.KeyboardButton(Command.NEXT)
     buttons.extend([next_btn, add_word_btn, delete_word_btn])
 
     markup.add(*buttons)
-    bot.send_message(chat_id, f'Переведите слово "{russian_word}"',
+    bot.send_message(chat_id, f'Переведи слово "{russian_word}"',
                      reply_markup=markup)
 
 
@@ -102,16 +102,16 @@ def message_reply(message):
     current_target_word = chat_state_manager.get_target_word(chat_id)
     current_other_words = chat_state_manager.get_other_words(chat_id)
     if current_target_word and message.text == current_target_word:
-        bot.send_message(chat_id, "Правильно")
+        bot.send_message(chat_id, "Правильно!👍")
         create_cards(message)
     if message.text in current_other_words:
-        bot.send_message(chat_id, "Неправильно. Попробуйте ещё раз.")
+        bot.send_message(chat_id, "Неправильно, попробуй ещё раз!❌")
 
 
 @bot.message_handler(func=lambda message: message.text == Command.ADD_WORD)
 def add_word(message):
     chat_id = message.chat.id
-    msg = bot.send_message(chat_id, 'Введите русское слово, которое хотите добавить')
+    msg = bot.send_message(chat_id, 'Введи русское слово')
     bot.register_next_step_handler(msg, process_added_word)
 
 
@@ -133,7 +133,7 @@ def process_added_word(message):
 @bot.message_handler(func=lambda message: message.text == Command.DELETE_WORD)
 def delete_word(message):
     chat_id = message.chat.id
-    msg = bot.send_message(chat_id, 'Введите слово из добавленных Вами, которое хотите удалить')
+    msg = bot.send_message(chat_id, 'Какое слово нужно удалить?')
     bot.register_next_step_handler(msg, process_deleted_word)
 
 
@@ -141,7 +141,7 @@ def process_deleted_word(message):
     chat_id = message.chat.id
     word_to_delete = message.text.capitalize()
     if word_to_delete not in database.get_user_words(chat_id):
-        bot.send_message(chat_id, 'Вы не можете удалить это слово')
+        bot.send_message(chat_id, 'Данное слово удалить нельзя')
         delete_word(message)
     else:
         database.delete_user_word(word_to_delete, chat_id)
