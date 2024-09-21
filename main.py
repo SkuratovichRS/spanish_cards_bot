@@ -44,12 +44,13 @@ chat_state_manager = ChatStateManager()
 class Command:
     ADD_WORD = 'Добавить слово ➕'
     DELETE_WORD = 'Удалить слово ➖'
-    NEXT = 'Дальше  ⬆️'
+    NEXT = 'Дальше ⬆️'
 
 
 @bot.message_handler(commands=['start'])
 def send_welcome(message):
     chat_id = message.chat.id
+    bot.send_photo(chat_id, open('images/monkey_education.jpg', 'rb'))
     bot.send_message(chat_id, 'Привет!👋 Давай вместе учить испанский!📚')
     bot.send_message(chat_id, 'Введи /help для просмотра доступных команд ⚙️')
 
