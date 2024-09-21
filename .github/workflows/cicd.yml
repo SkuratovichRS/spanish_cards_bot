@@ -5,11 +5,11 @@ on:
     branches: [ main ]
 
 jobs:
-  tests_and_deploy:
+  deploy:
     runs-on: ubuntu-20.04
     steps:
       - name: Check for changes
-      - uses: actions/checkout@v2
+        uses: actions/checkout@v2
 
       - name: Deploy
         uses: appleboy/ssh-action@master
@@ -17,7 +17,7 @@ jobs:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USERNAME }}
           password: ${{ secrets.SERVER_PASSWORD }}
-          script: | 
+          script: |
             cd PythonProjects/spanish_cards_bot
             git pull
             source venv/bin/activate
