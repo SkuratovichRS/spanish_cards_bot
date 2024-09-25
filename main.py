@@ -146,7 +146,7 @@ def process_deleted_word(message):
         delete_word(message)
     else:
         database.delete_user_word(word_to_delete, chat_id)
-        bot.send_message(chat_id, f'Слово {word_to_delete} успешно удалено')
+        bot.send_message(chat_id, f'Слово "{word_to_delete}" успешно удалено')
 
 
 if __name__ == '__main__':
